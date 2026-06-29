@@ -243,7 +243,6 @@ with tab2:
     col1, col2, col3 = st.columns(3)
     col1.metric("Artilheiros",      len(scorers))
     col2.metric("Maior nº de gols individual", scorers["goals"].max())
-    col3.metric("Clubes",           dados2026["current_club_name"].nunique())
 
     st.divider()
 
