@@ -1,56 +1,32 @@
-# =============================================================================
-# IMPORTS
-# =============================================================================
 import streamlit as st
 import pandas as pd
 import requests
 import plotly.express as px
 
+st.set_page_config(page_title="Dashboard das Copas",layout="wide")
 
-# =============================================================================
-# CONFIGURAÇÃO DA PÁGINA
-# =============================================================================
-st.set_page_config(
-    page_title="Dashboard das Copas",
-    layout="wide"
-)
-
-st.title("🏆 Dashboard das Copas do Mundo")
-
-
-# =============================================================================
-# CARREGAMENTO DOS DADOS
-# Todos os dados são carregados uma única vez ao iniciar o app.
-# O @st.cache_data evita que o arquivo seja lido novamente a cada interação.
-# =============================================================================
+st.title("Analise das Copas do Mundo")
 
 @st.cache_data
 def carregar_dados_historicos():
-    """Lê os arquivos CSV com os dados das Copas de 1930 a 2022."""
     BASE_PATH = "Dados/Copas(1930-2022)"
-
     tournaments = pd.read_csv(f"{BASE_PATH}/tournaments.csv")
     matches     = pd.read_csv(f"{BASE_PATH}/matches.csv")
     goals       = pd.read_csv(f"{BASE_PATH}/goals.csv")
     teams       = pd.read_csv(f"{BASE_PATH}/teams.csv")
     players     = pd.read_csv(f"{BASE_PATH}/players.csv")
-
-    # Remove jogadoras (mantém apenas o torneio masculino)
     players = players[players["female"] == False]
-
     return tournaments, matches, goals, teams, players
 
 
 @st.cache_data
 def carregar_dados_2026():
-    """Lê os arquivos CSV com os dados dos jogadores da Copa 2026."""
     BASE_PATH_2026 = "Dados/Jogadores"
-
     players_2026      = pd.read_csv(f"{BASE_PATH_2026}/df_players.csv")
     teams_2026        = pd.read_csv(f"{BASE_PATH_2026}/df_teams.csv")
     national_team_2026 = pd.read_csv(f"{BASE_PATH_2026}/df_national_team.csv")
 
-    # Une jogadores com informações do clube (liga e país)
+    #Ligação da API com o csv dos jogadores
     dados2026 = players_2026.merge(
         teams_2026[["club_id", "competition_name", "country_name"]],
         left_on="current_club_id",
@@ -63,28 +39,22 @@ def carregar_dados_2026():
 
 @st.cache_data
 def carregar_artilheiros_2026():
-    """Busca os artilheiros em tempo real via API da Copa 2026."""
     url = "https://wcup2026.org/api/data.php?action=scorers"
     dados_api = requests.get(url).json()
     scorers = pd.DataFrame(dados_api["scorers"])
     return scorers
 
-
-# Executa o carregamento
 tournaments, matches, goals, teams, players = carregar_dados_historicos()
 dados2026, national_team_2026               = carregar_dados_2026()
 scorers                                     = carregar_artilheiros_2026()
 
 
-# =============================================================================
-# MENU LATERAL — FILTROS
-# Todos os filtros ficam aqui, organizados por aba.
-# =============================================================================
 
-st.sidebar.header("⚙️ Filtros")
+# Menu lateral com os filtros
+st.sidebar.header("Filtros")
 
-# ---------- Filtros: Copa (1930–2022) ----------
-st.sidebar.markdown("### 📅 Copa (1930–2022)")
+#Filtro Copa (1930–2022)
+st.sidebar.markdown("Copa (1930–2022)")
 
 selecoes = sorted(teams["team_name"].unique())
 anos     = sorted(tournaments["year"].unique())
@@ -100,7 +70,7 @@ ano_inicio, ano_fim = st.sidebar.select_slider(
     value=(anos[0], anos[-1])
 )
 
-# ---------- Filtros: Copa 2026 ----------
+#Filtros Copa 2026
 st.sidebar.markdown("### ⚽ Copa 2026")
 
 opcoes_liga = ["Todas"] + sorted(
@@ -112,13 +82,8 @@ liga = st.sidebar.selectbox(
     opcoes_liga
 )
 
-
-# =============================================================================
-# APLICAÇÃO DOS FILTROS
-# Os filtros do sidebar são aplicados aqui, antes de exibir qualquer gráfico.
-# =============================================================================
-
-# --- Filtros Copa 1930–2022 ---
+# Aplicando os filtros
+#Filtros Copa 1930–2022
 tournaments_filtrado = tournaments[
     (tournaments["year"] >= ano_inicio) &
     (tournaments["year"] <= ano_fim)
@@ -136,7 +101,7 @@ if selecao != "Todas":
 
 goals_filtrado = goals[goals["match_id"].isin(matches_filtrado["match_id"])]
 
-# --- Filtros Copa 2026 ---
+#Filtros Copa 2026
 dados_filtrado = dados2026.copy()
 
 if liga != "Todas":
@@ -144,40 +109,30 @@ if liga != "Todas":
         dados_filtrado["competition_name"] == liga
     ]
 
-
-# =============================================================================
-# ABAS DO DASHBOARD
-# =============================================================================
-
 tab1, tab2 = st.tabs([
     "Copa (1930–2022)",
     "Copa 2026"
 ])
 
-
-# =============================================================================
-# ABA 1 — ANÁLISE HISTÓRICA (1930–2022)
-# =============================================================================
-
 with tab1:
 
     st.header("Análise Histórica das Copas")
 
-    # --- Métricas resumo ---
+    #Métricas resumo
     total_copas    = tournaments_filtrado["tournament_id"].nunique()
     total_jogos    = matches_filtrado["match_id"].nunique()
     total_gols     = len(goals_filtrado)
     total_selecoes = teams["team_name"].nunique()
 
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("🏆 Copas",    total_copas)
-    col2.metric("⚽ Jogos",    total_jogos)
-    col3.metric("🥅 Gols",     total_gols)
-    col4.metric("🌍 Seleções", total_selecoes)
+    col1.metric("Copas",    total_copas)
+    col2.metric("Jogos",    total_jogos)
+    col3.metric("Gols",     total_gols)
+    col4.metric("Seleções", total_selecoes)
 
     st.divider()
 
-    # --- Tabela de partidas ---
+    #Tabela de partidas
     st.subheader("Tabela de Partidas")
 
     tabela = matches_filtrado[["match_name", "score", "match_date"]]
@@ -185,7 +140,7 @@ with tab1:
 
     st.divider()
 
-    # --- Cálculos para os gráficos ---
+    #Cálculos para os gráficos
 
     # Média de gols por Copa
     gols_por_copa  = goals_filtrado.groupby("tournament_id").size().reset_index(name="total_gols")
@@ -198,7 +153,7 @@ with tab1:
         on="tournament_id"
     )
 
-    # Top 10 artilheiros históricos
+    # Top 10 artilheiros de todas as copas
     artilheiros = (
         goals_filtrado
         .groupby("player_id")
@@ -229,8 +184,7 @@ with tab1:
         on="tournament_id"
     )
 
-    # --- Gráficos ---
-
+    #Gráficos
     col1, col2 = st.columns(2)
 
     with col1:
@@ -282,24 +236,18 @@ with tab1:
         )
         st.plotly_chart(fig_jogos, use_container_width=True)
 
-
-# =============================================================================
-# ABA 2 — COPA DO MUNDO 2026
-# =============================================================================
-
 with tab2:
 
-    st.header("⚽ Copa do Mundo 2026")
+    st.header("Copa do Mundo 2026")
 
-    # --- Métricas resumo ---
     col1, col2, col3 = st.columns(3)
-    col1.metric("🏅 Artilheiros",      len(scorers))
-    col2.metric("⚽ Maior nº de gols", scorers["goals"].max())
-    col3.metric("🏟️ Clubes",           dados2026["current_club_name"].nunique())
+    col1.metric("Artilheiros",      len(scorers))
+    col2.metric("Maior nº de gols individual", scorers["goals"].max())
+    col3.metric("Clubes",           dados2026["current_club_name"].nunique())
 
     st.divider()
 
-    # --- Cálculos para os gráficos (aplicados sobre dados_filtrado) ---
+    #Cálculos para os gráficos
 
     # Top 10 clubes com mais jogadores convocados
     top10_clubes = (
@@ -343,7 +291,7 @@ with tab2:
             orientation="h",
             text="Jogadores",
             color="Jogadores",
-            title="🏟️ Top 10 clubes com mais jogadores"
+            title="Top 10 clubes com mais jogadores convocados"
         )
         fig_clubes.update_layout(
             height=450,
@@ -360,7 +308,7 @@ with tab2:
             y="Jogadores",
             text="Jogadores",
             color="Jogadores",
-            title="🏆 Top 10 ligas com mais jogadores"
+            title="Top 10 ligas com mais jogadores convocados"
         )
         fig_ligas.update_layout(
             height=450,
@@ -381,7 +329,7 @@ with tab2:
             orientation="h",
             text="Jogadores",
             color="Jogadores",
-            title="🌍 Top 10 países dos clubes"
+            title="Top 10 países dos clubes com mais convocações"
         )
         fig_paises.update_layout(
             height=450,
@@ -399,7 +347,7 @@ with tab2:
             orientation="h",
             text="goals",
             color="goals",
-            title="🥇 Top 10 artilheiros da Copa"
+            title="Top 10 artilheiros da Copa"
         )
         fig_artilheiros_2026.update_layout(
             height=450,
