@@ -15,17 +15,17 @@ O projeto tem 3 fontes de Dados
 ## ✨ Funcionalidades
 
 ### Aba 1 — Copa (1930–2022)
-- Filtro por seleção e período (slider de anos)
+- Filtro: Você pode filtrar a seleção a qual você quer ver os dados e as copas que você quer ver
 - Métricas: total de copas, jogos, gols e seleções participantes
 - Tabela de partidas com placar e data
 - Gráfico de linha: média de gols por Copa ao longo dos anos
-- Gráfico de barras: Top 10 artilheiros históricos
-- Gráfico de barras: quantidade de jogos por edição
+- Gráfico de barras: Top 10 artilheiros que mais fizeram gols
+- Gráfico de barras: quantidade de jogos por edição da copa
 
 ### Aba 2 — Copa 2026
-- Dados em tempo real via API (`wcup2026.org`)
+- Dados em tempo real com a API (`https://wcup2026.org/api/data.php?action=scorers`)
 - Métricas: total de artilheiros, maior número de gols e clubes representados
-- Filtro por liga
+- Filtro por ligas a qual os times dos jogadores convocados jogam
 - Top 10 clubes com mais jogadores convocados
 - Top 10 ligas com mais jogadores convocados
 - Top 10 países-sede dos clubes
