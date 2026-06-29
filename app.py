@@ -193,7 +193,7 @@ with tab1:
             x="year",
             y="media_gols",
             markers=True,
-            title="📈 Média de gols por Copa"
+            title="Média de gols por partida na Copa"
         )
         fig_media.update_layout(
             title_x=0.5,
@@ -209,7 +209,7 @@ with tab1:
             y="player_name",
             orientation="h",
             text="gols",
-            title="🥇 Top 10 Artilheiros"
+            title="Top 10 Artilheiros"
         )
         fig_artilheiros.update_layout(
             title_x=0.5,
