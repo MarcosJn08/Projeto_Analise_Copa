@@ -317,3 +317,33 @@ with tab2:
     col2.plotly_chart(fig2, use_container_width=True)
 
     col3, col4 = st.columns(2)
+
+
+    # Top 10 Países
+    paises = (
+        dados_filtrado
+        .groupby("country_name")
+        .size()
+        .reset_index(name="Jogadores")
+        .sort_values("Jogadores", ascending=False)
+        .head(10)
+    )
+
+    fig3 = px.bar(
+        paises,
+        x="Jogadores",
+        y="country_name",
+        orientation="h",
+        text="Jogadores",
+        color="Jogadores",
+        title="🌍 Top 10 países dos clubes"
+    )
+
+    fig3.update_layout(
+        height=450,
+        yaxis=dict(categoryorder="total ascending"),
+        showlegend=False,
+        title_x=0.5
+    )
+
+    col3.plotly_chart(fig3, use_container_width=True)
