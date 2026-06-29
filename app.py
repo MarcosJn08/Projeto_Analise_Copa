@@ -22,6 +22,9 @@ players_2026 = pd.read_csv(f"{BASE_PATH_2026}/df_players.csv")
 teams_2026 = pd.read_csv(f"{BASE_PATH_2026}/df_teams.csv")
 national_team_2026 = pd.read_csv(f"{BASE_PATH_2026}/df_national_team.csv")
 
+dados2026 = players_2026.merge(teams_2026[["club_id","competition_name","country_name"]],left_on="current_club_id",right_on="club_id",how="left"
+)
+
 # Dados Copa 1930 - 2022
 BASE_PATH = "Dados/Copas(1930-2022)"
 
@@ -206,3 +209,80 @@ with tab1:
 
     with col4:
         st.info("Sem nada")
+
+with tab2:
+
+    st.header("⚽ Copa do Mundo 2026")
+
+
+    scorers = pd.DataFrame(dados_api["scorers"])
+
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric(
+        "🏅 Artilheiros",
+        len(scorers)
+    )
+
+    col2.metric(
+        "⚽ Maior nº de gols",
+        scorers["goals"].max()
+    )
+
+    col3.metric(
+        "🏟️ Clubes",
+        dados2026["current_club_name"].nunique()
+    )
+
+    st.divider()
+
+    # Filtro
+    liga = st.selectbox(
+        "Liga",
+        ["Todas"] + sorted(
+            dados2026["competition_name"]
+            .dropna()
+            .unique()
+            .tolist()
+        )
+    )
+
+    dados_filtrado = dados2026.copy()
+
+    if liga != "Todas":
+        dados_filtrado = dados_filtrado[
+            dados_filtrado["competition_name"] == liga
+        ]
+
+    col1, col2 = st.columns(2)
+
+    # Top 10 Clubes
+
+    clubes = (
+        dados_filtrado
+        .groupby("current_club_name")
+        .size()
+        .reset_index(name="Jogadores")
+        .sort_values("Jogadores", ascending=False)
+        .head(10)
+    )
+
+    fig1 = px.bar(
+        clubes,
+        x="Jogadores",
+        y="current_club_name",
+        orientation="h",
+        text="Jogadores",
+        color="Jogadores",
+        title="🏟️ Top 10 clubes com mais jogadores"
+    )
+
+    fig1.update_layout(
+        height=450,
+        yaxis=dict(categoryorder="total ascending"),
+        showlegend=False,
+        title_x=0.5
+    )
+
+    col1.plotly_chart(fig1, use_container_width=True)
