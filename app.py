@@ -347,3 +347,52 @@ with tab2:
     )
 
     col3.plotly_chart(fig3, use_container_width=True)
+
+    # Top 10 Países
+    paises = (
+        dados_filtrado
+        .groupby("country_name")
+        .size()
+        .reset_index(name="Jogadores")
+        .sort_values("Jogadores", ascending=False)
+        .head(10)
+    )
+
+    fig3 = px.bar(
+        paises,
+        x="Jogadores",
+        y="country_name",
+        orientation="h",
+        text="Jogadores",
+        color="Jogadores",
+        title="🌍 Top 10 países dos clubes"
+    )
+
+    fig3.update_layout(
+        height=450,
+        yaxis=dict(categoryorder="total ascending"),
+        showlegend=False,
+        title_x=0.5
+    )
+
+    col3.plotly_chart(fig3, use_container_width=True)
+
+    # Top 10 Artilheiros
+    fig4 = px.bar(
+        scorers.head(10),
+        x="goals",
+        y="name",
+        orientation="h",
+        text="goals",
+        color="goals",
+        title="🥇 Top 10 artilheiros da Copa"
+    )
+
+    fig4.update_layout(
+        height=450,
+        yaxis=dict(categoryorder="total ascending"),
+        showlegend=False,
+        title_x=0.5
+    )
+
+    col4.plotly_chart(fig4, use_container_width=True)
