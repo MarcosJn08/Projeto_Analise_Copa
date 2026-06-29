@@ -286,3 +286,34 @@ with tab2:
     )
 
     col1.plotly_chart(fig1, use_container_width=True)
+
+    # Top 10 Ligas
+    ligas = (
+        dados_filtrado
+        .groupby("competition_name")
+        .size()
+        .reset_index(name="Jogadores")
+        .sort_values("Jogadores", ascending=False)
+        .head(10)
+    )
+
+    fig2 = px.bar(
+        ligas,
+        x="competition_name",
+        y="Jogadores",
+        text="Jogadores",
+        color="Jogadores",
+        title="🏆 Top 10 ligas com mais jogadores"
+    )
+
+    fig2.update_layout(
+        height=450,
+        showlegend=False,
+        title_x=0.5,
+        xaxis_title="Liga",
+        yaxis_title="Jogadores"
+    )
+
+    col2.plotly_chart(fig2, use_container_width=True)
+
+    col3, col4 = st.columns(2)
