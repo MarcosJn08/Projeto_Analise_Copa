@@ -5,6 +5,9 @@ Dashboard interativo desenvolvido com **Streamlit** para análise histórica das
 ---
 
 ## 📋 Sobre o Projeto
+Link no Streamlit:
+https://geihnt38xdyhu9xgmqijlj.streamlit.app/
+
 
 O projeto tem 3 fontes de Dados
 
